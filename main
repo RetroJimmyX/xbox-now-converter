@@ -1,0 +1,44 @@
+print("Enter a filename below (excl. .txt extension) or BLANK for try.txt")
+filename = input("Filename: ")
+if filename == "":
+    filename = "try.txt"
+else:
+    filename = filename + ".txt"
+file = open(filename,"r")
+
+## This examples a typical record structure with some as optional (*)
+## output[0]       The Bard's Tale TrilogyThe Bard's Tale Trilogy
+## output[4]     * NEW GAME PASS
+## output[3]     * Deal until: 9/17/2799 01:59 UTC
+## output[2]       35%UK UK
+##                 11.24 GBP
+##                 TR Turkey
+## output[1]       from: 0.64 GBP
+##                 save 94%
+##
+## The line for output[4] can be NEW | NEW GAME PASS | GAME PASS
+## The line for output[3] can be m/d/yyyy | Partly DiscountedUK UK
+
+firstline = True # This will determine what field the line represents
+output =["","","","",""] # Array for Title, Price, Disc, Date, New
+
+print("Title**Price**Disc**Date**New")
+for line in file:
+    if firstline: #First Line is the title
+        output [0] = line.strip()[0:len(line)//2]
+        firstline = False
+    elif line[0:10] == "Deal until": # Pickup Date
+        usdate = line[12:-11].split("/")
+        output[3] = usdate[1]+"/"+usdate[0]+"/"+usdate[2]
+    elif line[0:5] == "from:": # Pickup price
+        output[1] = line[6:-5]
+    elif line[2] == "%" and len(line) < 16: #Pickup Discount
+        output[2] = "0."+line[0:2]
+    elif line[0:3] == "NEW": # Pickup NEW
+        output[4] = "new"
+    elif line[0:5] == "save ": # End of record and print
+        firstline = True
+        print(output[0]+"**"+output[1]+"**"+output[2]+"**"+output[3]+"**"+output[4])
+        output =["","","","",""]
+
+file.close()
