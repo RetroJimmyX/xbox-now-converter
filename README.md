@@ -15,13 +15,17 @@ Non-English characters and symbols such as tradmark or regisatered or copyright 
 
 When read by line, the file consists of a records with 6-8 lines where each line is a field. An example is below.
 The start of each line shows where the data is mapped to.
-* indicates the line may or may not be present.    | divides a field into the options that it may contain
+A * indicates the line may or may not be present and a | divides a field into the options that it may contain
 
 output[0]       The Bard's Tale TrilogyThe Bard's Tale Trilogy
+
 output[4]     * NEW GAME PASS | NEW | GAME PASS
+
 output[3]     * Deal until: 9/17/2799 01:59 UTC | Partly DiscountedUK UK
+
 output[2]       20% (GP)TR Turkey
                 11.24 GBP
                 TR Turkey
+                
 output[1]       from: 0.64 GBP
                 save 94%
