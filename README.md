@@ -24,7 +24,9 @@ output[4]     * NEW GAME PASS | NEW | GAME PASS
 output[3]     * Deal until: 9/17/2799 01:59 UTC | Partly DiscountedUK UK
 
 output[2]       20% (GP)TR Turkey
+
                 11.24 GBP
+                
                 TR Turkey
                 
 output[1]       from: 0.64 GBP
