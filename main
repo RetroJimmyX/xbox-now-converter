@@ -1,44 +1,90 @@
-print("Enter a filename below (excl. .txt extension) or BLANK for try.txt")
-filename = input("Filename: ")
-if filename == "":
-    filename = "try.txt"
-else:
-    filename = filename + ".txt"
-file = open(filename,"r")
+print("Converts xbox-now.com discount list to CSV")
 
-## This examples a typical record structure with some as optional (*)
-## output[0]       The Bard's Tale TrilogyThe Bard's Tale Trilogy
-## output[4]     * NEW GAME PASS
-## output[3]     * Deal until: 9/17/2799 01:59 UTC
-## output[2]       35%UK UK
-##                 11.24 GBP
-##                 TR Turkey
-## output[1]       from: 0.64 GBP
-##                 save 94%
-##
-## The line for output[4] can be NEW | NEW GAME PASS | GAME PASS
-## The line for output[3] can be m/d/yyyy | Partly DiscountedUK UK
+games_list = []
 
-firstline = True # This will determine what field the line represents
-output =["","","","",""] # Array for Title, Price, Disc, Date, New
+def import_games():
+    global games_list
+    cleanup = [["â€™s","'"],["Â®",""],["â„¢",""],["â€”","-"],["Ã¶k","o"]]
+    print("Enter a filename below (incl. extension) or BLANK for try.txt: ")
+    filename = input("Filename: ").lower()
+    if filename == "": filename = "try.txt"
+    importfile = open(filename,"r")
+    newrecord,output = True,["","","","",""]
+    for line in importfile:
+        if newrecord: #First Line is the title
+            title = line.strip()[0:len(line)//2]
+            for item in cleanup:
+                title = title.replace(item[0],item[1])
+            output [0] = title
+            newrecord = False
+        elif line[0:10] == "Deal until": # Pickup Date
+            usdate = line[12:-11].split("/")
+            output[3] = usdate[1]+"/"+usdate[0]+"/"+usdate[2]
+        elif line[0:5] == "from:": # Pickup price
+            output[1] = line[6:-5]
+        elif line[2] == "%" and len(line) < 20: #Pickup Discount
+            output[2] = "0."+line[0:2]
+        elif line[0:3] == "NEW": # Pickup NEW
+            output[4] = "new"
+        elif line[0:5] == "save ": # End of record
+            games_list.append(output)
+            newrecord = True
+            output =["","","","",""]
+    print("Successfully imported {} games.".format(len(games_list)))
+    importfile.close()
 
-print("Title**Price**Disc**Date**New")
-for line in file:
-    if firstline: #First Line is the title
-        output [0] = line.strip()[0:len(line)//2]
-        firstline = False
-    elif line[0:10] == "Deal until": # Pickup Date
-        usdate = line[12:-11].split("/")
-        output[3] = usdate[1]+"/"+usdate[0]+"/"+usdate[2]
-    elif line[0:5] == "from:": # Pickup price
-        output[1] = line[6:-5]
-    elif line[2] == "%" and len(line) < 16: #Pickup Discount
-        output[2] = "0."+line[0:2]
-    elif line[0:3] == "NEW": # Pickup NEW
-        output[4] = "new"
-    elif line[0:5] == "save ": # End of record and print
-        firstline = True
-        print(output[0]+"**"+output[1]+"**"+output[2]+"**"+output[3]+"**"+output[4])
-        output =["","","","",""]
+def print_screen():
+    global games_list
+    print("You can sort the list by (t)itle*, (p)rice or (discount).")
+    sort = input("Sort by: ")
+    print("The are {} games. Show all* games or limit to a number per page?".format(len(games_list)))
+    pagination = input("Games per page: ")
+    if sort in ["p","d"]:
+        games_list.sort(key = lambda x: x[1])
+        games_list.sort(key = lambda x: x[2])
+    else:
+        games_list.sort(key = lambda x: x[0])
+    print("Title - Price - Disc - Date - New")
+    if pagination != "" and pagination.isdigit():
+        pagination = int(pagination)
+        for i in range(len(games_list)):
+            print(" - ".join(games_list[i]))
+            if i>0 and i%pagination == 0:
+                  if input("q to quit of ENTER for next page: ").lower() == "q":
+                      return
+    else:
+        for game in games_list:
+            print(" - ".join(x for x in game))
+        
+def export_csv():
+    global games_list
+    confirm = "n"
+    while confirm.lower() != "y":
+        print("\nPlease enter a filename (incl. extension) or leave blank for export.csv")
+        filename = input("Filename: ")
+        if filename == "": filename = "export.csv"
+        print("If {} exists, it will be overwritten.".format(filename))
+        confirm = input("Please type y to confirm: ")
+    open(filename,"w").close()
+    exportfile = open(filename,"a")
+    exportfile.write("\"Title\",\"Price\",\"Disc\",\"Date\",\"New\"\n")
+    for game in games_list:
+        exportfile.write("\""+"\",\"".join(x for x in game)+"\"\n")
+    print("CSV exported.")
+    exportfile.close()
 
-file.close()
+def menu():
+    choice =""
+    while choice.lower() != "q":
+        import_games()
+        print("\nDo you want to display the games imported on screen?")
+        choice = input("Display to Screen? (y*/n): ")
+        if choice.lower() != "n":
+            print_screen()
+        print("\nDo you want to export the games as a CSV file?")
+        choice = input("Export to CSV? (y*/n): ")
+        if choice.lower() != "n":
+            export_csv()
+        choice = input("\nType q to quit or ENTER to re-do: ")
+
+menu()
