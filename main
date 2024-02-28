@@ -12,7 +12,8 @@ def import_games():
     newrecord,output = True,["","","","",""]
     for line in importfile:
         if newrecord: #First Line is the title
-            title = line.strip()[0:len(line)//2]
+            title = line.strip() #Strip and splitting need to be separate lines
+            title = title[:len(title)//2]
             for item in cleanup:
                 title = title.replace(item[0],item[1])
             output [0] = title
@@ -86,5 +87,5 @@ def menu():
         if choice.lower() != "n":
             export_csv()
         choice = input("\nType q to quit or ENTER to re-do: ")
-
+    exit()
 menu()
