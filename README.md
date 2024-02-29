@@ -1,5 +1,7 @@
 The purpose of this program is to enable the text copied from the webpage https://www.xbox-now.com/en/deal-list to then be tidied to import to a spreadsheet.
 
+![image](https://github.com/RetroJimmyX/xbox-now-converter/assets/51858595/346a6e5a-c0e0-460a-99c8-26d88d4c96b3)
+
 Steps:
 1. Visit https://www.xbox-now.com/en/deal-list in a regular web browser
 2. Ensure filters are used and the currency settings to correctly display listings from a desired region.
